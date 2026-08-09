@@ -1,0 +1,343 @@
+{
+  lib,
+  pkgs,
+  config,
+  inputs,
+  flakePath,
+  ...
+}:
+let
+  meta = import ../meta.nix;
+  mkNiriBinds =
+    shortcuts:
+    builtins.listToAttrs (
+      map (shortcut: {
+        name = shortcut.keys;
+        value = lib.mkDefault {
+          action.spawn = lib.splitString " " shortcut.command;
+          hotkey-overlay.title = shortcut.name;
+        };
+      }) shortcuts
+    );
+in
+{
+  imports = [
+    inputs.niri.homeModules.niri
+    inputs.niri.homeModules.stylix
+
+    ../.
+    ../../xdg/mime/glob.nix
+  ];
+  home.packages = with pkgs; [
+    grim
+    slurp
+    playerctl
+    brightnessctl
+  ];
+
+  #! https://github.com/sodiboo/niri-flake/issues/1393
+  xdg.configFile."niri/config.kdl".source =
+    config.lib.file.mkOutOfStoreSymlink "${flakePath}/.config/niri/config.kdl";
+  #? to make it overridable by dms-flake
+  xdg.configFile.niri-config.target = lib.mkOverride 75 "niri/nix-generated-config.kdl";
+  #! https://github.com/sodiboo/niri-flake/issues/1721: append raw KDL for options niri-flake hasn't typed yet
+  xdg.configFile.niri-config.source =
+    let
+      inherit (inputs.niri.lib.internal) validated-config-for;
+      inherit (config.programs.niri) finalConfig package;
+      blurKdl = lib.optionalString config.custom.blur.enable /* kdl */ ''
+        //? Apps: blur them all without xray for a better look
+        window-rule {
+            background-effect {
+                blur true
+                xray false
+            }
+        }
+        //? Noctalia: blur everywhere without xray for a better look
+        layer-rule {
+            match namespace="^noctalia-(background|launcher-overlay|dock)-.*$"
+            background-effect {
+                xray false
+            }
+        }
+      '';
+    in
+    lib.mkForce (
+      validated-config-for pkgs package ''
+        ${finalConfig}
+
+        ${blurKdl}
+      ''
+    );
+  xdg.portal.enable = lib.mkForce false; # ! handled by nixos module
+  services.gnome-keyring.enable = lib.mkForce false; # ! handled by nixos module
+  programs.niri = {
+    enable = true;
+    package = with pkgs; niri;
+
+    #? https://github.com/sodiboo/niri-flake/blob/main/docs.md
+    #? https://niri-wm.github.io/niri/Configuration:-Introduction
+    settings = {
+      #! https://github.com/YaLTeR/niri/issues/1818: snip to edge
+      #! https://github.com/niri-wm/niri/pull/2609: maybe use when merged
+      #? win95 background
+      overview.backdrop-color = "#018281";
+
+      #? https://niri-wm.github.io/niri/Configuration:-Input
+      input = {
+        keyboard.numlock = true;
+        touchpad = {
+          # tap = true;
+          # natural-scroll = true;
+          accel-speed = -0.1;
+          scroll-factor = 0.3;
+        };
+      };
+      #! not implemented in niri-flake
+      # recent-windows.highlight.corner-radius = 12;
+      #? https://niri-wm.github.io/niri/Configuration:-Layout
+      layout = {
+        background-color = "transparent";
+        preset-column-widths = [
+          { proportion = 0.25; }
+          { proportion = 0.33333; }
+          { proportion = 0.5; }
+          { proportion = 0.66667; }
+          { proportion = 0.75; }
+          { fixed = 1920; }
+          { fixed = 2560; }
+        ];
+        preset-window-heights = [
+          { proportion = 0.25; }
+          { proportion = 0.33333; }
+          { proportion = 0.5; }
+          { proportion = 0.66667; }
+          { proportion = 0.75; }
+          { proportion = 1.0; }
+        ];
+        # default-column-width = {
+        #   proportion = 0.5;
+        # };
+        focus-ring = {
+          enable = true;
+          #? https://brand.nixos.org/documents/nixos-branding-guide.pdf
+          active.color = "#5fb8f2";
+          inactive.color = "#4d6fb7";
+        };
+        shadow = {
+          enable = true;
+          softness = 30;
+          spread = 5;
+          offset = {
+            x = 0;
+            y = 5;
+          };
+          color = "#0007";
+        };
+      };
+
+      # hotkey-overlay.skip-at-startup = true;
+
+      #? enable csd for consistency cause this isn't possible to disable csd for all windows
+      # prefer-no-csd = true;
+
+      switch-events.lid-close = lib.mkDefault {
+        action.spawn = [
+          "sh"
+          "-c"
+          "[ $(niri msg --json outputs | ${lib.getExe pkgs.jq} 'keys | length') == '1' ] && loginctl lock-session"
+        ];
+      };
+
+      binds = lib.attrsets.mergeAttrsList [
+        (mkNiriBinds meta.shortcuts)
+        {
+          "Mod+F1" = lib.mkDefault {
+            hotkey-overlay.title = "Show Important Hotkeys";
+            action = config.lib.niri.actions.show-hotkey-overlay;
+          };
+          "Mod+P" = lib.mkDefault {
+            hotkey-overlay.title = "Change Display Settings";
+            action.spawn = [ (lib.getExe pkgs.wdisplays) ];
+          };
+          "Mod+L" = lib.mkDefault {
+            hotkey-overlay.title = "Lock Screen";
+            action.spawn = [
+              "loginctl"
+              "lock-session"
+            ];
+            allow-when-locked = true;
+          };
+
+          "XF86AudioRaiseVolume" = lib.mkDefault {
+            allow-when-locked = true;
+            action.spawn = [
+              "wpctl"
+              "set-volume"
+              "@DEFAULT_AUDIO_SINK@"
+              "5%+"
+              "-l"
+              "1.5"
+            ];
+          };
+          "XF86AudioLowerVolume" = lib.mkDefault {
+            allow-when-locked = true;
+            action.spawn = [
+              "wpctl"
+              "set-volume"
+              "@DEFAULT_AUDIO_SINK@"
+              "5%-"
+            ];
+          };
+          "XF86AudioMute" = lib.mkDefault {
+            allow-when-locked = true;
+            action.spawn = [
+              "wpctl"
+              "set-mute"
+              "@DEFAULT_AUDIO_SINK@"
+              "toggle"
+            ];
+          };
+          "XF86AudioMicMute" = lib.mkDefault {
+            allow-when-locked = true;
+            action.spawn = [
+              "wpctl"
+              "set-mute"
+              "@DEFAULT_AUDIO_SOURCE@"
+              "toggle"
+            ];
+          };
+          "Alt+XF86AudioRaiseVolume" = lib.mkDefault {
+            allow-when-locked = true;
+            action.spawn = [
+              "wpctl"
+              "set-volume"
+              "@DEFAULT_AUDIO_SOURCE@"
+              "5%+"
+            ];
+          };
+          "Alt+XF86AudioLowerVolume" = lib.mkDefault {
+            allow-when-locked = true;
+            action.spawn = [
+              "wpctl"
+              "set-volume"
+              "@DEFAULT_AUDIO_SOURCE@"
+              "5%-"
+            ];
+          };
+
+          "XF86AudioPlay" = lib.mkDefault {
+            allow-when-locked = true;
+            action.spawn = [
+              "playerctl"
+              "play-pause"
+            ];
+          };
+          "XF86AudioStop" = lib.mkDefault {
+            allow-when-locked = true;
+            action.spawn = [
+              "playerctl"
+              "stop"
+            ];
+          };
+          "XF86AudioPrev" = lib.mkDefault {
+            allow-when-locked = true;
+            action.spawn = [
+              "playerctl"
+              "previous"
+            ];
+          };
+          "XF86AudioNext" = lib.mkDefault {
+            allow-when-locked = true;
+            action.spawn = [
+              "playerctl"
+              "next"
+            ];
+          };
+
+          "XF86MonBrightnessUp" = lib.mkDefault {
+            allow-when-locked = true;
+            action.spawn = [
+              "brightnessctl"
+              "--class=backlight"
+              "set"
+              "+10%"
+            ];
+          };
+          "XF86MonBrightnessDown" = lib.mkDefault {
+            allow-when-locked = true;
+            action.spawn = [
+              "brightnessctl"
+              "--class=backlight"
+              "set"
+              "10%-"
+            ];
+          };
+
+          #! https://github.com/niri-wm/niri/pull/3316
+          "XF86TouchpadToggle" = lib.mkDefault {
+            allow-when-locked = true;
+            action.spawn = [ "niri-toggle-touchpad" ];
+          };
+        }
+      ];
+
+      clipboard.disable-primary = true;
+    };
+  };
+
+  services.kanshi = {
+    enable = true;
+    settings = [
+      {
+        profile.name = "standalone";
+        profile.outputs = [
+          {
+            criteria = "eDP-1";
+            mode = "1920x1080@120.003";
+            scale = 1.0;
+          }
+        ];
+      }
+    ];
+  };
+
+  #! vibecoded shitscript
+  #? capslock is remapped to layout switch, so its LED is free -> drive it from the active niri layout
+  #? lit on any non-default (non-US) layout; needs the `*::capslock/brightness` udev rule in modules/desktop/manager/niri.nix
+  systemd.user.services.capslock-layout-led = {
+    Unit = {
+      Description = "Drive Caps Lock LED from niri keyboard layout";
+      PartOf = [ "graphical-session.target" ];
+      After = [ "graphical-session.target" ];
+    };
+    Service = {
+      ExecStart =
+        let
+          niri = lib.getExe config.programs.niri.package;
+          jq = lib.getExe pkgs.jq;
+        in
+        lib.getExe (
+          pkgs.writeShellScriptBin "capslock-layout-led" /* shell */ ''
+            #? event-stream emits KeyboardLayoutsChanged on connect (initial sync) and KeyboardLayoutSwitched on toggle
+            #? --unbuffered keeps the pipe flowing per line; empty drops events we don't care about
+            ${niri} msg --json event-stream \
+              | ${jq} --unbuffered -r '(.KeyboardLayoutSwitched.idx) // (.KeyboardLayoutsChanged.keyboard_layouts.current_idx) // empty' \
+              | while read -r idx; do
+                  #? idx 0 == English (US); light the LED for anything else
+                  [ "$idx" -gt 0 ] && v=1 || v=0
+                  #? one `*::capslock` LED per keyboard, mirror to all writable ones
+                  for led in /sys/class/leds/*::capslock/brightness; do
+                      [ -w "$led" ] && printf '%s' "$v" > "$led"
+                  done
+              done
+          ''
+        );
+      Restart = "on-failure";
+      RestartSec = 2;
+    };
+    Install.WantedBy = [ "graphical-session.target" ];
+  };
+
+  services.polkit-gnome.enable = lib.mkDefault true; # ? polkit from wiki
+}

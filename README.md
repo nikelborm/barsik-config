@@ -1,141 +1,59 @@
 # config
 
-one repo to rule them all!
-
-## [NixOS](./nix/README.md)
-
-### [packages](./nix/packages/README.md)
-
-## [Android](./android/README.md)
+### [packages](./packages/README.md)
 
 ## [Linux](./linux/README.md)
 
-## [Windows](./windows/README.md)
-
-## [browser](./browser/README.md)
-
-## [Versus](https://notes.ogurez.ipv64.net/Versus/)
-
-my opinion on random things, mostly comparisons between flaming objects
-
-## [archive](./аrchive/README.md)
-
 ## cross-platform
 
-### [git config (`~/.config/git/config`)](https://git-scm.com/docs/git-config)
-
-[nix code to fill](nix/home/default.nix#:~:text=%23%20%7D;-,userName):
+[nix code to fill](home/default.nix#:~:text=%23%20%7D;-,userName):
 
 ```shell
 mkdir -p ~/.config/git/
 nix eval --impure --raw --expr '
   with import <nixpkgs> {};
   lib.generators.toGitINI
-    ((builtins.getFlake "github:barsikus007/config?dir=nix")
-      .nixosConfigurations.ROG14.config.home-manager.users.ogurez.programs.git.iniContent)
+    ((builtins.getFlake "github:nikelborm/barsik-config")
+      .nixosConfigurations.xiaomi-A35S-laptop-nixos.config.home-manager.users.evadev.programs.git.iniContent)
 ' > ~/.config/git/config
 ```
 
-#### [signing](https://docs.github.com/en/authentication/managing-commit-signature-verification/displaying-verification-statuses-for-all-of-your-commits)
 
-1. [upload key](https://github.com/settings/ssh/new)
-2. configure git (code above fills values)
+modular Nix configurations for desktops, servers, virtual machines, mobile devices, and custom packages
 
-### python
+## [packages](./packages/README.md)
 
-```shell
-python3 -m pip install --upgrade pip setuptools wheel
-```
+## [command cheatsheet](./cheatsheet.md)
 
-#### uv
+## installation
 
 ```shell
-uv python install
-uv python install --preview
-# uv python install 3.10 3.11 3.12 3.13t pypy
-# uv python install --preview 3.10 3.11 3.12 3.13t pypy3.11
+cd
+mkdir -p ~/projects
+git clone --branch=cleanup https://github.com/nikelborm/barsik-config.git ./projects/barsik-config
+cd ~/projects/barsik-config
+sudo nixos-rebuild switch --flake .
+home-manager switch --flake .
 ```
 
-[TODO - python available globally](https://docs.astral.sh/uv/guides/install-python/#getting-started)
+### nix itself
 
-```shell
-# linux
-curl -LsSf https://astral.sh/uv/install.sh | sh
-# windows
-scoop install uv
-# powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+#### [Nix install](https://zero-to-nix.com/start/install/) speedrun on existing system
 
-uv tool --version  # 0.6.14
-# uv tool install isd
-# uv tool install ruff
-# uv tool install hatch
-# uv tool install pgcli
-# uv tool install litecli
-# uv tool install --with ipython ptpython
-# uv tool install anicli-ru
-# uv tool install anicli-ru --upgrade-package anicli-api
-uv tool upgrade --all
-```
+- TLDR
+  - `curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install`
+    - enable systemd if wsl
+    - alt installer `curl --proto '=https' --tlsv1.2 -sSf -L https://artifacts.nixos.org/experimental-installer | sh -s -- install`
+  - [offline install](https://github.com/DeterminateSystems/nix-installer/releases/latest/download/nix-installer-x86_64-linux)
 
-#### hatch
+## config reference
 
-```shell
-hatch config set dirs.env.virtual .venv
-hatch config set template.licenses.headers false
-hatch config set terminal.styles.spinner material
-# TODO or use uv for python projects
-# https://hatch.pypa.io/latest/how-to/environment/select-installer/#enabling-uv
-```
+### [vscode](.config/Code/User/)
 
-##### release schedule
+- extensions manager script: `./nix/.config/Code/User/extensions-manager.sh`
+  - shows diff between extensions in `code` and defined in `extensions.nix`
 
-```shell
-hatch test -ac
-hatch version micro
-hatch build
-hatch publish
-```
+## imperative
 
-###### tag based
-
-```shell
-hatch test -ac
-hatch version micro
-git commit -am "release: $(hatch version)"
-git tag -a $(hatch version) -m
-git push origin --follow-tags
-```
-
-#### [hatch sync env](https://github.com/pypa/hatch/discussions/594#discussioncomment-4377827)
-
-```shell
-hatch run true
-```
-
-### other
-
-- Telegram > Settings
-  - Notifications and Sound
-    - Calls > Accept calls on this device
-    - Badge counter > !1,!3
-  - Advanced
-    - Automatic media download > * > !Files
-    - Window title bar > Use * window frame
-    - Spell checker >
-    - Experimental settings
-      - Add "View Profile"
-      - Show Peer IDs in Profile
-      - Show Channel Joined Date in Profile
-      - Enable webview inspecting
-      - Unlimited recent stickers
-  - AyuGram > General
-    - Show Message Seconds
-- [CH340/CH341 driver (chinese Arduino)](https://web.archive.org/https://www.wch-ic.com/downloads/ch341ser_zip.html)
-
-## TODO
-
-- meta
-  - check all `*.md` and `*.nix` code sections with `shellcheck`
-  - nuke media from git history
-    - save refs somehow
-      - new branch or repo for that
+- Throne (formerly known as nekoray/nekobox)
+  - Routing -> Routing settings -> DNS -> Direct DNS: `8.8.8.8`

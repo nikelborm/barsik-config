@@ -1,0 +1,63 @@
+{
+  pkgs,
+  config,
+  username,
+  ...
+}:
+#! +1.1Gb
+{
+  nix.settings.extra-substituters = [ "https://noctalia.cachix.org" ];
+  nix.settings.extra-trusted-public-keys = [
+    "noctalia.cachix.org-1:pCOR47nnMEo5thcxNDtzWpOxNFQsBRglJzxWPp3dkU4="
+  ];
+  imports = [
+    #! noctalia-greeter.url = "github:noctalia-dev/noctalia-greeter";
+    # inputs.noctalia-greeter.nixosModules.default
+
+    ./niri.nix
+    ../../hardware/ddcutil.nix
+    ../style/uniform-look.nix
+    ../environment/kde-dbus.nix
+    ../environment/kdeconnect.nix
+  ];
+  home-manager.users.${username}.imports = [
+    ../../../home/desktop/manager/quickshell/noctalia-niri.nix
+  ];
+
+  services.displayManager.gdm.enable = !config.services.displayManager.sddm.enable;
+
+  /*
+    TODO greetd
+
+    * fprintd
+    * kwallet
+    * не мыльное (kanshi?)
+  */
+  # programs.noctalia-greeter = {
+  #   enable = true;
+  #   settings = {
+  #     cursor = with config.stylix.cursor; {
+  #       inherit size;
+  #       theme = name;
+  #       path = "${package}/share/icons";
+  #     };
+  #   };
+  # };
+
+  #! noctalia-v5 lockscreen fprint fix
+  security.pam.services.login.fprintAuth = !config.services.fprintd.enable;
+  #? for hooks.session_unlocked (noctalia-niri.nix)
+  security.polkit.extraConfig = /* javascript */ ''
+    polkit.addRule(function (action, subject) {
+      if (action.id === "org.freedesktop.systemd1.manage-units"
+        && action.lookup("unit") === "fprintd.service"
+        && subject.user === "${username}") {
+        return polkit.Result.YES;
+      }
+    });
+  '';
+
+  environment.systemPackages = with pkgs; [ wdisplays ];
+
+  programs.dsearch.enable = true;
+}
