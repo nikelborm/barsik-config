@@ -82,7 +82,7 @@ in
           action = noctalia-ipc "panel-toggle" "launcher" "/emo";
         };
       }
-      // lib.attrsets.optionalAttrs config.custom.isAsus {
+      // {
         "Mod+Shift+S" = {
           hotkey-overlay.title = "Quick ScreenCapture";
           action = noctalia-ipc "plugin" "noctalia/screen_recorder:service" "all" "toggle";
