@@ -14,7 +14,8 @@
     enable = true;
     ports = lib.mkDefault [ 22 ];
     settings = {
-      PermitRootLogin = lib.mkDefault "no";
+      # TODO: temporarily enabled for debugging
+      PermitRootLogin = lib.mkDefault "yes";
       PasswordAuthentication = false;
       ChallengeResponseAuthentication = false;
       KbdInteractiveAuthentication = false;
