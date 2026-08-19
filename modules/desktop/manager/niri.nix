@@ -76,7 +76,7 @@
   #? nixos-rebuild, so user services gated on ConditionEnvironment=WAYLAND_DISPLAY
   #? (kanshi etc.) never start; re-export deterministically once niri is up
   #? (Type=notify => ExecStartPost runs after READY=1, socket already exists)
-  systemd.user.services.niri.Service.ExecStartPost = [
+  systemd.user.services.niri.serviceConfig.ExecStartPost = [
     (
       let
         systemctl = lib.getExe' pkgs.systemd "systemctl";
