@@ -279,6 +279,17 @@ in
           }
         ];
       }
+      #! VM (virt-manager/QEMU) has no eDP-1, default EDID is 1280x800
+      {
+        profile.name = "vm";
+        profile.outputs = [
+          {
+            criteria = "Virtual-1";
+            mode = "1920x1080@60";
+            scale = 1.0;
+          }
+        ];
+      }
     ];
   };
 
