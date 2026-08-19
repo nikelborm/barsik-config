@@ -17,6 +17,9 @@
     "usbhid"
     "usb_storage"
     "sd_mod"
+    #? VM: virtio disk/PCI so stage-1 can find the LUKS volume
+    "virtio_pci"
+    "virtio_blk"
   ];
   boot.initrd.kernelModules = [ ];
   boot.kernelModules = [ "kvm-amd" ];

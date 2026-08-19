@@ -12,6 +12,8 @@
       #! values others from "kde" breaks plasma
       # qt.platform = "kde";
 
+      #? conflicts with custom kitty font/settings
+      kitty.enable = false;
       #? conflicts with custom theme
       bat.enable = false;
       #? isn't switching with script

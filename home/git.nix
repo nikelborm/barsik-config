@@ -37,7 +37,7 @@
         builtins.readFile (
           builtins.fetchurl {
             url = "https://github.com/nikelborm.keys";
-            sha256 = "sha256-Tnf/WxeYOikI9i5l4e0ABDk33I5z04BJFApJpUplNi0=";
+            sha256 = "sha256-BYYaWKaZjNI0XxWXnthsfS/WxrGEs60awBFH3lNxvvE=";
           }
         )
       )

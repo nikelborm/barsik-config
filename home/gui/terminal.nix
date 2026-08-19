@@ -59,5 +59,5 @@ in
     # };
   };
 
-  environment.variables.TERMINAL = "kitty";
+  home.sessionVariables.TERMINAL = "kitty";
 }

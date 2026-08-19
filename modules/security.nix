@@ -1,7 +1,8 @@
 { self, pkgs, ... }:
 {
-  #? https://wiki.nixos.org/wiki/SSH_public_key_authentication#KDE
-  programs.ssh.startAgent = true;
+  #? SSH agent is provided by the GnuPG agent (programs.gnupg.agent.enableSSHSupport)
+  #? or the desktop keyring (gcr-ssh-agent); programs.ssh.startAgent conflicts
+  #? with both in current nixpkgs.
 
   security.polkit = {
     enable = true;

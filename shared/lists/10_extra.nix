@@ -35,5 +35,5 @@ import ./11_powertoys.nix { inherit pkgs; }
   gimp3
   scrcpy
   obsidian
-  transmission-gtk
+  transmission_4-gtk
 ]

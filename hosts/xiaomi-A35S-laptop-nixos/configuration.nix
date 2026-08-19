@@ -22,6 +22,9 @@
     ../extra.nix
     ./hardware-configuration.nix
 
+    inputs.disko.nixosModules.disko
+    ./disko-config.nix
+
     ../../modules/systemd-boot.nix
 
     ../../modules/hardware/fingerprint.nix

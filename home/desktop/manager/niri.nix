@@ -45,29 +45,9 @@ in
     let
       inherit (inputs.niri.lib.internal) validated-config-for;
       inherit (config.programs.niri) finalConfig package;
-      blurKdl = lib.optionalString config.custom.blur.enable /* kdl */ ''
-        //? Apps: blur them all without xray for a better look
-        window-rule {
-            background-effect {
-                blur true
-                xray false
-            }
-        }
-        //? Noctalia: blur everywhere without xray for a better look
-        layer-rule {
-            match namespace="^noctalia-(background|launcher-overlay|dock)-.*$"
-            background-effect {
-                xray false
-            }
-        }
-      '';
     in
     lib.mkForce (
-      validated-config-for pkgs package ''
-        ${finalConfig}
-
-        ${blurKdl}
-      ''
+      validated-config-for pkgs package finalConfig
     );
   xdg.portal.enable = lib.mkForce false; # ! handled by nixos module
   services.gnome-keyring.enable = lib.mkForce false; # ! handled by nixos module

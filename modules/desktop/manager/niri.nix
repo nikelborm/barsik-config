@@ -32,10 +32,10 @@
 
   #? cause it it set by module with no configuration, overriding the common settings
   xdg.portal.config.niri."org.freedesktop.impl.portal.FileChooser" = lib.mkIf (
-    config.xdg.portal.config.common ? "org.freedesktop.impl.portal.FileChooser"
+    config.xdg.portal.config ? common && config.xdg.portal.config.common ? "org.freedesktop.impl.portal.FileChooser"
   ) (lib.mkForce config.xdg.portal.config.common."org.freedesktop.impl.portal.FileChooser");
   xdg.portal.config.niri."org.freedesktop.impl.portal.Secret" = lib.mkIf (
-    config.xdg.portal.config.common ? "org.freedesktop.impl.portal.Secret"
+    config.xdg.portal.config ? common && config.xdg.portal.config.common ? "org.freedesktop.impl.portal.Secret"
   ) (lib.mkForce config.xdg.portal.config.common."org.freedesktop.impl.portal.Secret");
 
   #! vibecoded shitfix for autostart themes (envs) and tray icons

@@ -3,7 +3,7 @@
   pkgs,
   flakePath,
 }:
-{
+rec {
   baseAliases = {
     #? https://askubuntu.com/a/22043
     #? https://superuser.com/a/1655578

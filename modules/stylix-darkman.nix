@@ -8,7 +8,6 @@
   home-manager.users.${username}.imports = [ ../home/stylix-darkman.nix ];
 
   specialisation.light = {
-    generateBootEntry = false;
     configuration = {
       stylix = {
         base16Scheme = lib.mkForce "${pkgs.base16-schemes}/share/themes/github.yaml";
