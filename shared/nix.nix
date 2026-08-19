@@ -49,6 +49,7 @@ in
 if (_class == "nixos") then
   {
     environment.etc."nixpkgs".source = pkgs.path;
+    environment.etc."nixos".source = "/home/evadev/projects/nixos-config";
     nix = {
       channel.enable = false;
     }
