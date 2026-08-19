@@ -2,6 +2,7 @@
   imports = [
     ../../home
     ../../home/shell
+    ../../home/omp.nix
 
     ../../home/xdg/desktop.nix
     ../../home/xdg/autostart.nix

@@ -40,6 +40,11 @@
 
     niri.url = "github:sodiboo/niri-flake";
     noctalia.url = "github:noctalia-dev/noctalia/cachix";
+    omp = {
+      url = "github:can1357/oh-my-pi";
+      #? use the same nixpkgs as the rest of the config
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   # TODO: FUCK THIS NIXFMT INDENT: https://github.com/NixOS/nixfmt/issues/91

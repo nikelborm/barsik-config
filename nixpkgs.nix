@@ -15,6 +15,9 @@ let
     "vscode"
     "discord"
     "obsidian"
+
+    "anytype"
+    "anytype-heart" # unfree dependency of anytype
   ];
   lib = nixpkgs.lib;
 in

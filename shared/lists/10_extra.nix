@@ -36,4 +36,9 @@ import ./11_powertoys.nix { inherit pkgs; }
   scrcpy
   obsidian
   transmission_4-gtk
+
+  #! system tools
+  btrfs-assistant
+  gparted-full
+  anytype
 ]
