@@ -9,10 +9,14 @@ in
 {
   #! QT-based apps: https://github.com/telegramdesktop/tdesktop/issues/26370
   #! Dolphin drops its view-props xattr on this reload, so it binds to dolphinViewProperties
+  #! activation also runs outside a graphical session (boot, rebuild from ssh) where there is
+  #! no session bus -- emit is best-effort, skip it there instead of failing the rebuild
   home.activation.notifyQtColorChange =
     lib.hm.dag.entryBetween [ "dolphinViewProperties" ] [ "writeBoundary" ]
       ''
-        run ${lib.getExe' pkgs.glib "gdbus"} emit --session --object-path /KGlobalSettings --signal org.kde.KGlobalSettings.notifyChange 0 0
+        if [ -n "''${DBUS_SESSION_BUS_ADDRESS:-}" ]; then
+          run ${lib.getExe' pkgs.glib "gdbus"} emit --session --object-path /KGlobalSettings --signal org.kde.KGlobalSettings.notifyChange 0 0
+        fi
       '';
   services.darkman = {
     enable = true;

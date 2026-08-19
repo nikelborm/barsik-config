@@ -72,6 +72,29 @@
     };
   };
 
+  #? niri's own startup env import can get lost when home-manager re-activates during
+  #? nixos-rebuild, so user services gated on ConditionEnvironment=WAYLAND_DISPLAY
+  #? (kanshi etc.) never start; re-export deterministically once niri is up
+  #? (Type=notify => ExecStartPost runs after READY=1, socket already exists)
+  systemd.user.services.niri.Service.ExecStartPost = [
+    (
+      let
+        systemctl = lib.getExe' pkgs.systemd "systemctl";
+        bash = lib.getExe pkgs.bash;
+      in
+      ''
+        ${bash} -c '
+          sock=$(ls %t/niri.wayland-*.sock 2>/dev/null | head -n 1)
+          if [ -n "$sock" ]; then
+            ${systemctl} --user set-environment \
+              WAYLAND_DISPLAY="wayland-$(basename "$sock" | sed -n "s/^niri\.wayland-\([0-9][0-9]*\)\..*/\1/p")" \
+              NIRI_SOCKET="$sock"
+          fi
+        '
+      ''
+    )
+  ];
+
   #? `WantedBy=` pulls autostart apps but doesn't order them; the generator gives them
   #? only `After=graphical-session.target`; add a per-unit drop-in ordering each one
   #? after portal-env-fix, so it sees a portal that is up and display-aware; list comes
