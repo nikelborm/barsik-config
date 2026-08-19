@@ -3,7 +3,7 @@
 let
   userIcon = pkgs.fetchurl {
     url = "https://github.com/nikelborm.png";
-    sha256 = "sha256-9uVU2KzX97TGS51lgwL8JqdSbX7kbl1uJRDTWo3Mpsg=";
+    sha256 = "sha256-5jRogm8nF3wGjfY7Wb652iAYLNUEggf4WTVAKcdpxS4=";
   };
 in
 {
