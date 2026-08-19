@@ -1,1 +1,3 @@
 zfs|zroot|zpool|tank|sanoid|syncoid|cachyos|photoshop|wine|steam|games|minecraft|prism|parsec|monocraft|miracode|minecraftia|davinci|syncthing|kompas3d|vim|handbrake|antimicrox|audacity|neovide|hytale|cuda|blender|nvidia|bcompare|\.nv|\bnv\b|vfio|asus|sunshine|moonlight|glass|zephyrus|anime|ytarchive|streams|waydroid|Shikimori|shiki|windows|win10|\brog|rustdesk|keepass|wsl|droid|nvf|yazi|firefox|furry|nano|brave|Edge|plasma|dms|wez|zsh|lua|AyuGram|mx3|g14|impermanence|mpv|termux|openwrt|sops|xbox|gamepad|wireguard|printer|speedhack|coolvm|fail2ban|3xipl|custom\.persist|guardant|grdcontrol|printing|cups|mprint|librewolf|mozilla|rquickshare|thunderbird
+
+potentially kanshi

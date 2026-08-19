@@ -9,6 +9,7 @@ with pkgs;
   gdu
   fzf
   btop
+  htop
   zoxide
   ripgrep
 
