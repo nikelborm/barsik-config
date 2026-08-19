@@ -60,7 +60,7 @@
           inputs
           username
           ;
-        flakePath = "/home/${username}/config/nix";
+        flakePath = "/home/${username}/projects/nixos-config";
       };
 
       mkHomeCfg = username: modules: {
@@ -183,7 +183,7 @@
             pythonPkg = pkgs.python313;
           in
           pkgs.mkShell {
-            #? nix develop ~/config/nix#python
+            #? nix develop ~/projects/nixos-config#python
             packages = with pkgs; [
               (pythonPkg.withPackages (
                 python-pkgs: with python-pkgs; [

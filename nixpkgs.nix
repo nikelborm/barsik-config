@@ -5,7 +5,7 @@
   overlays ? [ ],
 }:
 let
-  #! харам, платные приложения
+  #! платные приложения
   paidApps = [
     "7zz"
     "uasm" # ? 7zz unfree dep

@@ -41,7 +41,7 @@ fi
 
 ```shell
 # no internet
-nh os switch /home/evadev/config/nix -- --option substitute false
+nh os switch /home/evadev/projects/nixos-config -- --option substitute false
 ```
 
 ### ISO with initial soft
